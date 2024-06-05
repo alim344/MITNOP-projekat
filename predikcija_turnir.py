@@ -21,62 +21,61 @@ from sklearn.metrics import accuracy_score
 data_dir = 'Data/'
 dfs = []
 
-# Loop through each year from 2013 to 2023
+
 for year in range(2013, 2024):
-    # Construct the file path for the current year
     file_path = os.path.join(data_dir, f'atp_matches_{year}.csv')
     df = pd.read_csv(file_path)
     if year >= 2022:
-        df['weight'] = 2  # Matches from the past two years
+        df['weight'] = 2  
     else:
-        df['weight'] = 1  # Matches from earlier years
+        df['weight'] = 1  
     dfs.append(df)
 
 all_matches = pd.concat(dfs, ignore_index=True)
 
-#filling all null nan values with Hard court
-all_matches['surface'].fillna('Hard', inplace=True)
 
-#droping values we dont need and there are a lot nan values so they arent usable
+all_matches['surface'] = all_matches['surface'].fillna('Hard')
+
+
 all_matches.drop(columns = ['winner_seed','winner_entry','loser_seed','loser_entry'],inplace = True)
 
-#filling in nan values with most frequent ones for hands
+
 most_frequent_winner_hand = all_matches['winner_hand'].mode()[0]
-all_matches['winner_hand'].fillna(most_frequent_winner_hand, inplace=True)
+all_matches['winner_hand'] = all_matches['winner_hand'].fillna(most_frequent_winner_hand)
 
 most_frequent_loser_hand = all_matches['loser_hand'].mode()[0]
-all_matches['loser_hand'].fillna(most_frequent_loser_hand, inplace=True)
+all_matches['loser_hand'] = all_matches['loser_hand'].fillna(most_frequent_loser_hand)
 
 
-#filling nan values with the most frequent for height of players 
+
 most_frequent_winner_height = all_matches['winner_ht'].mode()[0]
-all_matches['winner_ht'].fillna(most_frequent_winner_height, inplace=True)
+all_matches['winner_ht'] = all_matches['winner_ht'].fillna(most_frequent_winner_height)
 
 
 most_frequent_loser_height = all_matches['loser_ht'].mode()[0]
-all_matches['loser_ht'].fillna(most_frequent_loser_height, inplace=True)
+all_matches['loser_ht'] = all_matches['loser_ht'].fillna(most_frequent_loser_height)
 
 
 columns_to_fill = ['w_ace', 'w_df', 'w_svpt', 'w_1stIn', 'w_1stWon', 'w_2ndWon', 'w_SvGms', 'w_bpSaved', 'w_bpFaced',
                    'l_ace', 'l_df', 'l_svpt', 'l_1stIn', 'l_1stWon', 'l_2ndWon', 'l_SvGms', 'l_bpSaved', 'l_bpFaced']
 
-# Loop through each column and fill NaN values with the mode
+
 for column in columns_to_fill:
     most_frequent_value = all_matches[column].mode()[0]
-    all_matches[column].fillna(most_frequent_value, inplace=True)
-
-#filling nan values with 1000 beacuse these arent some famous players if the rank is unknown
-all_matches['winner_rank'].fillna(1000, inplace=True)
-all_matches['loser_rank'].fillna(1000, inplace=True)
+    all_matches[column] = all_matches[column].fillna(most_frequent_value)
 
 
-# Fill missing values in the  with the median
+all_matches['winner_rank'] = all_matches['winner_rank'].fillna(1000)
+all_matches['loser_rank'] = all_matches['loser_rank'].fillna(1000)
+
+
+
 winner_rank_points_median = all_matches['winner_rank_points'].median()
-all_matches['winner_rank_points'].fillna(winner_rank_points_median, inplace=True)
+all_matches['winner_rank_points'] = all_matches['winner_rank_points'].fillna(winner_rank_points_median)
 
 
 loser_rank_points_median = all_matches['loser_rank_points'].median()
-all_matches['loser_rank_points'].fillna(loser_rank_points_median, inplace=True)
+all_matches['loser_rank_points'] = all_matches['loser_rank_points'].fillna(loser_rank_points_median)
 
 print(all_matches.isna().sum())
 
